@@ -16,7 +16,7 @@ Tiempo: unos 20 minutos, más lo que tarden los DNS.
 
 - [ ] `main` está al día y sin cambios a medias (`git status` limpio).
 - [x] Almudena tiene cuenta de GitHub. Su usuario: `almarbra`; el repo, `almarbra/almudena`.
-- [ ] Almudena tiene cuenta de Cloudflare, y el dominio (`almudenagonzalez.com`, por ejemplo) a mano.
+- [x] Almudena tiene cuenta de Cloudflare, y el dominio: `almarbra.com`.
 
 ## 1. Su copia
 
@@ -30,8 +30,8 @@ Tiempo: unos 20 minutos, más lo que tarden los DNS.
 - [ ] En su Cloudflare: **Workers & Pages → Create → Import a repository** → `almarbra/almudena`.
       Lo demás lo lee de `wrangler.jsonc` (instala sharp con `npm install`, build `node build/build.mjs`, sale `dist/`).
 - [ ] **Settings → Domains & Routes → Add → Custom domain**: su dominio (y `www`, si lo quiere).
-- [ ] En **su** repo, `data/site.json` → `"url": "https://almudenagonzalez.com"`. Commit y push
-      a su repo (no al de meowrhino). Con eso deja de llevar `noindex`.
+- [x] `data/site.json` → `"url": "https://almarbra.com"` (2026-11-02, ya en las dos copias). Con eso
+      su copia deja de llevar `noindex`; la nuestra sigue con él (lo pone la Action).
 
 ## 3. Que nos deje entrar
 
@@ -60,6 +60,6 @@ Con él delante, siguiendo [GUIA.md](GUIA.md) ("La primera vez: preparar VS Code
 
 ## 7. Al acabar
 
-- [ ] Fila de oriol en `JAMstack/inventario.md` con las dos direcciones (github.io y su dominio).
+- [ ] Fila de almarbra en `JAMstack/inventario.md` con las dos direcciones (github.io y almarbra.com).
 - [ ] La copia de meowrhino sigue en github.io con `noindex`: no compite en Google. Si molesta,
       Settings → Pages → **Unpublish site** (el repo se queda).
