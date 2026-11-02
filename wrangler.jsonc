@@ -1,0 +1,9 @@
+// La copia de Almudena, en Cloudflare: Workers Builds conectado a su repo
+// (TRASPASO.md). Se publica en la raíz; con el dominio en data/site.json →
+// "url", se indexa. Workers Builds hace el npm install solo (sharp).
+{
+  "name": "almarbra",
+  "compatibility_date": "2026-10-01",
+  "build": { "command": "node build/build.mjs" },
+  "assets": { "directory": "./dist", "not_found_handling": "404-page" }
+}

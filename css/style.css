@@ -1,0 +1,678 @@
+/* almudena gonzalez
+
+   Fondo blanco, tipografía de palo seco en minúscula y las fotos
+   mandando, unidas por hilos de píxeles del color de cada proyecto. El
+   menú arriba en todas las páginas. Dos pantallas: la portada (el mapa,
+   la lista o el about) y la página de un proyecto (ficha + galería).
+
+   La página funciona entera sin JavaScript: sin él la portada es la
+   lista y las fotos se ven sin más. Con él, .js en <html> (el <head>). */
+
+:root {
+  --bg: #fff;
+  --ink: #000;
+  --dim: rgba(0, 0, 0, .5);
+  --bar: 3rem;                 /* alto de la barra de arriba */
+  --pad: clamp(1rem, 4vw, 3rem);
+}
+
+/* Amsi Pro (Stawix), la de Almudena: regular y bold, en woff2 propias. */
+@font-face { font-family: "Amsi Pro"; font-weight: 400; src: url("fonts/AmsiPro-Regular.woff2") format("woff2"); font-display: swap; }
+@font-face { font-family: "Amsi Pro"; font-weight: 700; src: url("fonts/AmsiPro-Bold.woff2") format("woff2"); font-display: swap; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  font: 400 clamp(14px, 1.5vw, 16px)/1.4 "Amsi Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -.01em;
+  color: var(--ink);
+  background: var(--bg);
+  text-transform: lowercase;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; text-decoration: none; }
+a:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+/* solo para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── el menú de arriba ───────────────────────────────────────────────
+
+   Sin fondo y en difference, como los mandos del zoom: negro sobre el
+   blanco y en negativo sobre las fotos y los hilos que pasan por debajo.
+   Por eso dentro de la barra la tinta es blanca. */
+
+.top {
+  --ink: #fff;
+  --dim: rgba(255, 255, 255, .55);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  height: var(--bar);
+  padding-inline: var(--pad);
+  color: var(--ink);
+  mix-blend-mode: difference;
+}
+
+/* Arriba a la derecha: mapa, lista y about, y en un proyecto su nombre */
+.top nav { display: flex; gap: 1.25rem; }
+.top .name { letter-spacing: .05em; }   /* tracking 50 */
+.top nav a { color: var(--dim); }
+
+/* En el móvil el menú no cabe en una fila: va en columna, a la derecha,
+   en todas las páginas. El nombre, entero en una línea, a la altura de
+   la primera. */
+@media (max-width: 700px) {
+  .top {
+    align-items: flex-start;
+    height: auto;
+    min-height: var(--bar);
+    padding-block: calc((var(--bar) - 1.4em) / 2);
+  }
+  .top .name { white-space: nowrap; }
+  .top nav { flex-direction: column; align-items: flex-end; gap: .2rem; }
+}
+
+/* el idioma, abajo a la derecha: la misma página en los otros */
+.idiomas {
+  position: fixed;
+  right: var(--pad);
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  height: var(--bar);
+}
+
+[data-vista="mapa"] .idiomas { display: none; }
+
+.idiomas a { color: var(--dim); }
+
+/* lo que está puesto: el idioma y la página */
+.idiomas [aria-current],
+.top [aria-current="page"] { color: var(--ink); }
+
+@media (hover: hover) {
+  .top a:hover,
+  .idiomas a:hover { color: var(--ink); }
+}
+
+/* ── el mapa, las listas y el about: cada uno, su página ─────────────
+
+   Sin JavaScript, el mapa no se monta: sus fotos salen seguidas. */
+
+#mapa { display: grid; }
+
+:root:not(.js) #mapa { position: static; overflow: visible; cursor: auto; }
+:root:not(.js) .world { display: flex; flex-wrap: wrap; gap: 1rem; padding: var(--bar) var(--pad); }
+:root:not(.js) .pin { position: static; }
+
+/* ── el about: el texto arriba a la izquierda, bajo el nombre ───────
+
+   Detrás, el telar: hilos de borde a borde que se tejen y destejen
+   despacio (js/telar.js). Al pie, el email y las redes. Abajo del todo, a
+   la izquierda, quién hizo la web, frente a los idiomas. */
+
+#about {
+  position: relative;
+  min-height: calc(100vh - var(--bar));
+  padding: .5rem var(--pad) calc(var(--bar) + var(--pad));
+}
+
+#about div {
+  max-width: 32rem;
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  line-height: 1.35;
+}
+
+/* En un proyecto, el texto como una foto: opaco y con 1rem de aire
+   alrededor, así que el hilo pasa por debajo y se corta antes de llegar
+   a una letra; cada bloque ceñido a lo que ocupa, para no cortar el
+   hilo en el blanco de al lado. En el about y contacto el telar esquiva
+   el texto (js/telar.js), salvo en pantallas estrechas, donde no cabe
+   por los lados: ahí, la mancha. */
+#about div,
+#contacto div,
+.ficha > *,
+.group h2,
+.project .back {
+  position: relative;
+  z-index: 1;
+}
+
+.ficha > *,
+.group h2,
+.project .back {
+  background: var(--bg);
+  box-shadow: 0 0 0 1rem var(--bg);
+}
+
+@media (max-width: 700px) {
+  #about div,
+  #contacto div {
+    background: var(--bg);
+    box-shadow: 0 0 0 1rem var(--bg);
+  }
+}
+
+.ficha > *,
+.group h2 { width: fit-content; }
+
+#about p { margin: 0 0 1em; }
+#about figure { margin: 0 0 1.5rem; }
+#about figure img { width: 100%; }
+
+/* el email y las redes, al pie (content/web.json) */
+.contacto { display: flex; flex-wrap: wrap; gap: 0 1.25em; }
+.contacto a { border-bottom: 1px solid var(--dim); }
+/* en la franja de abajo, como los idiomas: el telar no entra en ella */
+#about .credito {   /* #about: que no le llegue el margen de #about p */
+  position: absolute;
+  left: var(--pad);
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: .3em;
+  height: var(--bar);
+  margin: 0;
+  font-size: .75rem;
+  color: var(--dim);
+}
+
+.fondo {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* ── contacto ───────────────────────────────────────────────────────
+
+   Como el about (el telar detrás, el bloque opaco que corta los hilos),
+   pero en el centro de la pantalla y más pequeño: la foto (si la hay)
+   y debajo el email y las redes. */
+
+#contacto {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: calc(100vh - var(--bar));
+  padding: .5rem var(--pad) calc(var(--bar) + var(--pad));
+  font-size: clamp(.95rem, 1.5vw, 1.15rem);
+  line-height: 1.35;
+  text-align: center;
+}
+
+#contacto div { width: min(18rem, 100%); }
+#contacto figure { margin: 0 0 1rem; }
+#contacto img { width: 100%; }
+#contacto .contacto { justify-content: center; }
+
+/* ── el mapa ─────────────────────────────────────────────────────────
+
+   Un scroll en las dos direcciones, a toda la pantalla y sin barras: con
+   el dedo o la rueda se recorre solo, y el ratón lo arrastra (js/mapa.js).
+   Es una rejilla para que el plano, si al alejarlo queda más pequeño que
+   la pantalla, se quede en el centro (margin: auto). */
+
+#mapa {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#mapa::-webkit-scrollbar { display: none; }
+#mapa.dragging { cursor: grabbing; }
+
+.world { position: relative; margin: auto; }
+
+.threads {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.pin {
+  position: absolute;
+  display: block;
+}
+
+.pin img { width: 100%; }
+
+/* el nombre del proyecto no se ve: solo lo leen los lectores de pantalla */
+.pin span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pin { transition: opacity .2s; }
+
+/* Los hilos, a media luz. Al pasar por una foto se enciende su proyecto
+   (js/mapa.js): sus hilos, a tope; las fotos de los demás se apagan y
+   sus hilos se quedan como estaban. */
+.threads path { opacity: .35; }
+.threads path.on { opacity: 1; }
+.dim .pin:not(.on) { opacity: .15; }
+
+/* La entrada. Primero salen los huecos —una trama de píxeles del color
+   del proyecto—, del centro hacia fuera: --d es el retraso de cada uno
+   (js/mapa.js). Luego cada foto se funde en el suyo cuando ha llegado
+   (.ok, js/transicion.js). Pasado el rato (.listo), las que lleguen
+   tarde entran sin esperar. Lo mismo, sin orden, en la lista, el about
+   y las galerías. */
+.pin,
+.row .pic,
+#diaris li {
+  background: repeating-conic-gradient(color-mix(in srgb, var(--c) 35%, transparent) 0 25%, transparent 0 50%) 0 0 / 6px 6px;
+}
+
+.js .pin { animation: hueco .4s steps(4, end) var(--d, 0s) backwards; }
+@keyframes hueco { from { opacity: 0; } }
+
+/* (si js/transicion.js no llegara, a los 8 s se ven igual) */
+.js :is(.pin, .row .pic, .group figure, #diaris li) img:not(.ok) { opacity: 0; animation: verse 0s 8s forwards; }
+@keyframes verse { to { opacity: 1; } }
+.js :is(.pin, .row .pic, .group figure, #diaris li) img { transition: opacity .8s ease-out; }
+.js .pin img { transition-delay: calc(var(--d, 0s) + .3s); }
+.listo .pin { --d: 0s; }
+
+/* Los píxeles del mapa (js/mapa.js): el halo brota al pasar por una
+   foto y se va igual; la pelusa sale cuando su hilo ya está cosido, y
+   al recoserse se va con él y vuelve a salir. */
+.pixeles {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  shape-rendering: crispEdges;
+}
+
+.pixeles path { transition: opacity .6s steps(4, end); }
+.pelusa { opacity: .3; animation: hueco .4s steps(4, end) 2s backwards; }   /* como su hilo, a media luz */
+.pelusa.on { opacity: .8; }
+.halo { opacity: .45; }
+
+/* Los mandos del zoom, abajo en el centro, como el menú: el − y el +
+   en gris y el zoom en negro (js/mapa.js lo cuenta al cambiar; se
+   puede escribir en él). En
+   difference, como el menú. */
+.zoom { display: none; }
+[data-vista="mapa"] .zoom {
+  --ink: #fff;
+  --dim: rgba(255, 255, 255, .55);
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  height: var(--bar);
+  color: var(--ink);
+  mix-blend-mode: difference;
+  transform: translateX(-50%);
+}
+
+.zoom button {
+  padding: 0 .6rem;
+  height: 100%;
+  border: 0;
+  font: inherit;
+  color: var(--dim);
+  background: none;
+  cursor: pointer;
+}
+
+/* el número: un campo, para escribir otro, que parece texto */
+.nivel {
+  width: 3.2em;   /* que no baile al contar */
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  background: none;
+  outline: none;
+  cursor: text;
+}
+
+.nivel:focus { border-bottom: 1px solid currentColor; }
+
+@media (hover: hover) {
+  .zoom button:hover { color: var(--ink); }
+}
+
+/* ── las listas ──────────────────────────────────────────────────────
+
+   Una página por lista de data/site.json, con su nombre encima (sin
+   JavaScript; con él, ya está marcado en el menú). Dentro, en zigzag: dos
+   columnas, cada proyecto en su fila de la rejilla (grid-row, de
+   build/paginas.mjs), así que bajan alternando lado sin solaparse, con
+   aire entre una y otra. La foto, y debajo su nombre. En el móvil, una
+   columna, alternando también de lado. */
+
+#lista {
+  position: relative;
+  z-index: 1;
+  padding: clamp(1rem, 4vh, 3rem) var(--pad) 0;
+}
+
+.cat + .cat { margin-top: clamp(4rem, 14vh, 9rem); }
+
+.js .cat h1 { display: none; }   /* con JavaScript, ya lo dice el menú */
+
+.cat h1 {
+  margin: 0 0 clamp(1.5rem, 5vh, 3rem);
+  font-size: 1em;
+  font-weight: 400;
+  color: var(--dim);
+}
+
+.cat ol {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(2rem, 10vw, 10rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cat li { position: relative; z-index: 1; padding-bottom: clamp(3rem, 12vh, 8rem); }
+
+.cat li:nth-child(odd) { grid-column: 1; }
+.cat li:nth-child(even) { grid-column: 2; }
+
+.row { display: block; }
+.cat li:nth-child(even) .row { text-align: right; }
+.cat li:nth-child(even) .pic { margin-left: auto; }
+.row .pic img { width: 100%; }
+
+.row h3 {
+  margin: .6rem 0 0;
+  font-size: clamp(.9rem, 1.6vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+@media (hover: hover) {
+  .row:hover h3 { color: var(--c); }
+}
+
+@media (max-width: 700px) {
+  .cat ol { display: block; }
+  .cat li { grid-row: auto !important; }
+  .cat li .row { width: 80%; }
+  .cat li:nth-child(even) .row { margin-left: auto; }
+}
+
+/* ── diaris ──────────────────────────────────────────────────────────
+
+   Las fotos de diaris/ en columnas, como un tumblr: cada una entera, a
+   lo ancho de su columna, con poco aire entre ellas. Tres columnas; en
+   el móvil, dos. El orden lo baraja un script al pintar
+   (build/paginas.mjs). */
+
+#diaris {
+  --gap: clamp(.5rem, 1.5vw, 1.25rem);
+  padding: clamp(1rem, 4vh, 3rem) var(--pad) var(--bar);
+}
+
+#diaris ul {
+  columns: 3;
+  column-gap: var(--gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#diaris li {
+  break-inside: avoid;
+  margin-bottom: var(--gap);
+}
+
+#diaris img { width: 100%; }
+
+@media (max-width: 700px) {
+  #diaris ul { columns: 2; }
+}
+
+/* ── los hilos ───────────────────────────────────────────────────────
+
+   Los del mapa y los del about: finos, del mismo grueso a cualquier
+   zoom, sin suavizar —se ven de píxeles— y se dibujan solos (cada uno
+   con su retraso, que pone js/mapa.js). La forma la da js/hilos.js. */
+
+.threads path,
+.fondo path {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  shape-rendering: crispEdges;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 1.6s ease-out forwards;
+  transition: opacity .2s;
+}
+
+@keyframes draw { to { stroke-dashoffset: 0; } }
+
+/* los del about se tejen y destejen solos, despacio (js/mapa.js) */
+.fondo path { animation: none; }
+
+/* ── el dibujo de la transición ───────────────────────────────────────
+
+   El mecanismo es el de la casa (css/transicion.css, js/transicion.js).
+   Lo de almarbra: la ola de píxeles (js/ola.js) y, si la espera en
+   blanco pasa de medio segundo, un hilo de píxeles en el centro que se
+   teje y se desteje, del color de la ola (--carga). */
+
+:root { --carga-anim: tejer 1.8s steps(20) .5s infinite; }
+
+.tapada body::after,
+.cargando body::after {
+  width: 84px;
+  height: 18px;
+  background: var(--carga, var(--ink));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 18'%3E%3Cpath d='M2 10H6V12H12V14H22V12H26V10H30V8H34V6H38V4H48V6H52V8H56V10H60V12H64V14H76V12H80V10H82' fill='none' stroke='%23000' stroke-width='2' shape-rendering='crispEdges'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 18'%3E%3Cpath d='M2 10H6V12H12V14H22V12H26V10H30V8H34V6H38V4H48V6H52V8H56V10H60V12H64V14H76V12H80V10H82' fill='none' stroke='%23000' stroke-width='2' shape-rendering='crispEdges'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+/* Con JavaScript, en su lugar un hilo de verdad (js/ola.js): se cose,
+   se queda y se desteje por donde vino, otro distinto en cada vuelta. */
+.hilado body::after { content: none; }
+
+.carga {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 11;
+  width: 140px;
+  height: 60px;
+  translate: -50% -50%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.carga path {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: square;
+  shape-rendering: crispEdges;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+/* se teje de izquierda a derecha, se queda un momento y se desteje
+   detrás de la punta, como los del about */
+@keyframes tejer {
+  0% { clip-path: inset(0 100% 0 0); }
+  45%, 60% { clip-path: inset(0); }
+  100% { clip-path: inset(0 0 0 100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .threads path,
+  .fondo path { animation: none; stroke-dashoffset: 0; }
+  .js .pin,
+  .pixeles path { animation: none !important; }
+  .js img { transition: none !important; }
+}
+
+/* ── página de proyecto ──────────────────────────────────────────────
+
+   Una sola columna —800 px como mucho— centrada y con aire por los
+   cuatro costados: arriba la ficha, debajo las fotos, todas al mismo
+   ancho. Por encima, un hilo de su color (js/hilo.js).
+
+   Los 800 también los sabe build/build.mjs, que los pone en el `sizes`
+   de cada foto: si cambian aquí, cambian allí. */
+
+.project {
+  --col: 800px;
+  min-height: 100vh;
+}
+
+/* La columna, o todo el ancho menos el aire de los lados. La vuelta de
+   abajo va al ras de ella. */
+.project footer.bar,
+.project article {
+  width: min(var(--col), 100% - 2 * var(--pad));
+  margin-inline: auto;
+}
+
+.project article {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(2rem, 7vh, 4.5rem) clamp(3rem, 10vh, 6rem);
+}
+
+/* El hilo: baja ondulando de lado a lado y se va tejiendo (js/hilo.js).
+   Va por debajo de las fotos y el texto (con su aire, arriba): se ve en
+   el blanco y nunca toca una letra. */
+.hilo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hilo path {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 3;
+  stroke-linecap: square;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  min-height: var(--bar);
+  padding-block: clamp(1rem, 3vh, 2rem);
+  font-size: .9em;
+  color: var(--dim);
+}
+
+/* El «back», al final de todo, centrado y con aire. */
+.project footer.bar {
+  position: relative;
+  z-index: 1;
+  justify-content: center;
+  padding-block: clamp(3rem, 12vh, 8rem) clamp(4rem, 16vh, 10rem);
+}
+
+@media (hover: hover) {
+  .bar a:hover { color: var(--ink); }
+}
+
+.ficha { margin: 0 0 clamp(2.5rem, 9vh, 5.5rem); }
+
+/* El texto, más estrecho que la columna: una línea de 800 px se lee
+   mal. Las fotos sí la ocupan entera, y el título también (que «roma:
+   ciudad en ruinas, / identidad en construcción» quepa en dos). */
+.ficha p { max-width: 34rem; }
+
+/* En el título, lo que va entre comas no se parte si cabe en una línea
+   (build/paginas.mjs). */
+.ficha h1 span { display: inline-block; }
+
+.ficha h1 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.75rem, 6vw, 3rem);
+  font-weight: 700;
+  letter-spacing: -.02em;
+  line-height: 1.05;
+}
+
+.ficha p { margin: 0 0 1rem; color: var(--dim); }
+
+.credits {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .35rem 1.5rem;
+  margin: 2.5rem 0 0;
+  font-size: .9em;
+}
+
+.credits dt { color: var(--dim); }
+.credits dd { margin: 0; }
+.credits dd + dd { grid-column: 2; }   /* dos con el mismo rol */
+.credits a { border-bottom: 1px solid var(--dim); }
+
+.group { margin: 0 0 clamp(2rem, 8vh, 5rem); }
+
+.group h2 {
+  margin: 0 0 1.5rem;
+  font-size: .9em;
+  font-weight: 400;
+  letter-spacing: .12em;
+  color: var(--dim);
+}
+
+/* Cada foto ocupa la columna entera... salvo las que de origen son más
+   estrechas: el `max-width` que les pone el build con su ancho real las
+   frena, y entonces se quedan centradas antes que ampliarse y verse
+   blandas. */
+.group figure { margin: 0 0 clamp(.75rem, 3vh, 2rem); }
+.group figure img { width: 100%; margin: 0 auto; }
+
+@media (max-width: 700px) {
+  .credits { grid-template-columns: 1fr; gap: 0; }
+  .credits dt { margin-top: .75rem; }
+}

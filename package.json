@@ -1,0 +1,18 @@
+{
+  "name": "almarbra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portfolio de Almudena González: un proyecto por carpeta (project.json + img/ con sus WebP), HTML estático generado en dist/",
+  "type": "module",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "serve": "node build/serve.mjs",
+    "dev": "npm run build && npm run serve"
+  },
+  "dependencies": {
+    "sharp": "^0.35.5"
+  },
+  "engines": {
+    "node": "22"
+  }
+}

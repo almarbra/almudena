@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "data/site.json: lo general de la web",
+  "description": "data/site.json: lo general de la web. Este fichero lo lee VS Code (por el \"$schema\" de arriba del JSON) para autocompletar, explicar cada campo y subrayar lo que está mal; el build y la vista previa validan con él mismo.",
+  "type": "object",
+  "required": [
+    "title",
+    "lang",
+    "langs",
+    "description",
+    "lists",
+    "menu"
+  ],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^_": {
+      "type": "string",
+      "description": "Una nota para quien edita. No sale en la web."
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "El nombre de la web: sale arriba a la izquierda, en la pestaña, en Google y al compartir."
+    },
+    "url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^https://[^/]+/?$",
+      "description": "El dominio, cuando lo haya: \"https://almudenagonzalez.com\". Hasta entonces, null, y Google no la indexa. En meowrhino.github.io/almarbra/ no hace falta: lo pone el build."
+    },
+    "lang": {
+      "enum": [
+        "es",
+        "en",
+        "ca"
+      ],
+      "description": "El idioma de la raíz de la web; los otros van en /en/ y /ca/."
+    },
+    "langs": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "es",
+          "en",
+          "ca"
+        ]
+      },
+      "description": "Los idiomas de la web."
+    },
+    "description": {
+      "$ref": "#/$defs/texto",
+      "description": "La frase que sale debajo del título en Google y al compartir la web."
+    },
+    "email": {
+      "type": "string",
+      "description": "Sale en la página de contacto. Vacío, no sale."
+    },
+    "instagram": {
+      "type": "string",
+      "pattern": "^@?[A-Za-z0-9._]*$",
+      "description": "El usuario de Instagram, solo el nombre: \"almarbra_\" (con o sin @). Sale en la página de contacto como @almarbra_. Vacío, no sale."
+    },
+    "social": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^https?://"
+      },
+      "description": "Otras redes, la dirección entera: [\"https://vimeo.com/usuario\"]. Salen en la página de contacto, detrás del Instagram."
+    },
+    "lists": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/lista"
+      },
+      "description": "Las listas del menú (textil, foto…), en orden. Cada una nombra sus proyectos (carpetas de projects/) y les da su dirección (/textil/roma/). Lo que va en cada una, y en qué orden, es lo que sale en la web."
+    },
+    "menu": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "map": {
+          "$ref": "#/$defs/texto"
+        },
+        "diaris": {
+          "$ref": "#/$defs/texto"
+        },
+        "about": {
+          "$ref": "#/$defs/texto"
+        },
+        "contact": {
+          "$ref": "#/$defs/texto"
+        },
+        "back": {
+          "$ref": "#/$defs/texto"
+        }
+      },
+      "description": "Las demás palabras del menú, por idioma: map (el mapa), diaris, about, contact (contacto) y back (volver)."
+    },
+    "mix": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "De 0 a 100. En el mapa, con 0 las fotos de cada proyecto van juntas, por zonas; con 100, todo revuelto."
+    }
+  },
+  "$defs": {
+    "texto": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "es": {
+          "type": "string"
+        },
+        "en": {
+          "type": "string"
+        },
+        "ca": {
+          "type": "string"
+        }
+      },
+      "description": "Un texto en los tres idiomas: { \"es\": \"…\", \"en\": \"…\", \"ca\": \"…\" }. Si falta uno, sale el español."
+    },
+    "lista": {
+      "type": "object",
+      "required": [
+        "name",
+        "projects"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/texto",
+          "description": "Su nombre en el menú, por idioma."
+        },
+        "projects": {
+          "type": "array",
+          "description": "Sus proyectos, en el orden en que salen: el nombre de su carpeta en projects/ (projects/roma/). Para esconder uno sin quitarlo: { \"project\": \"roma\", \"visible\": false }.",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "El nombre de la carpeta del proyecto en projects/."
+              },
+              {
+                "type": "object",
+                "required": [
+                  "project"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "project": {
+                    "type": "string",
+                    "description": "El nombre de la carpeta del proyecto en projects/."
+                  },
+                  "visible": {
+                    "type": "boolean",
+                    "description": "false: tiene su página (para mandarla a quien quieras), pero no sale en el mapa, en las listas ni en Google."
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
